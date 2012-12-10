@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2/trunk/src/main/config/static-analysis/checkstyle/styles
+END
+checkstyle-noframes-severity-sorted.xsl
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/!svn/ver/2/trunk/src/main/config/static-analysis/checkstyle/styles/checkstyle-noframes-severity-sorted.xsl
+END
+checkstyle-author.xsl
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/!svn/ver/2/trunk/src/main/config/static-analysis/checkstyle/styles/checkstyle-author.xsl
+END
+checkstyle-text.xsl
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/!svn/ver/2/trunk/src/main/config/static-analysis/checkstyle/styles/checkstyle-text.xsl
+END
+checkstyle-frames-errors.xsl
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/!svn/ver/2/trunk/src/main/config/static-analysis/checkstyle/styles/checkstyle-frames-errors.xsl
+END
+checkstyle-noframes-sorted.xsl
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/!svn/ver/2/trunk/src/main/config/static-analysis/checkstyle/styles/checkstyle-noframes-sorted.xsl
+END
+checkstyle-simple.xsl
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/!svn/ver/2/trunk/src/main/config/static-analysis/checkstyle/styles/checkstyle-simple.xsl
+END
+checkstyle-noframes.xsl
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/!svn/ver/2/trunk/src/main/config/static-analysis/checkstyle/styles/checkstyle-noframes.xsl
+END
+checkstyle-csv.xsl
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/!svn/ver/2/trunk/src/main/config/static-analysis/checkstyle/styles/checkstyle-csv.xsl
+END
+checkstyle-frames.xsl
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/!svn/ver/2/trunk/src/main/config/static-analysis/checkstyle/styles/checkstyle-frames.xsl
+END

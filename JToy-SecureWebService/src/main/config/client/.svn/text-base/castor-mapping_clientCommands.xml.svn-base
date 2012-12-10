@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE mapping PUBLIC 
+    "-//EXOLAB/Castor Object Mapping DTD Version 1.0//EN"
+    "http://castor.exolab.org/mapping.dtd">
+
+<!--
+	This mapping file contains all of the Object-to-XML (O/XML) mapping
+	definitions used by the Order System WS
+	
+	Author: Paul R Evans
+	Version: $Id$
+-->
+<mapping xmlns="http://castor.exolab.org/"
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:OSTypes="http://name.paulevans/samples/OrderSystem-types"
+	xmlns:OSOperations="http://name.paulevans/samples/OrderSystem-commands"
+	xsi:type="mapping">
+	
+	<!-- Define our calculate order sub-total command class -->
+	<class name="name.paulevans.sampleprojects.command.client.clientcmds.CalculateOrderSubTotalCommand">
+		
+		<map-to xml="CalculateOrderSubTotalCommand"
+			ns-uri="http://name.paulevans/samples/OrderSystem-commands"
+			ns-prefix="OSOperations" />
+			
+		<field name="Order" type="name.paulevans.sampleprojects.model.Order">
+			<bind-xml name="OSTypes:Order" />
+		</field>
+	</class>
+	
+	<!-- Define our 'what a great price!' command class -->
+	<class name="name.paulevans.sampleprojects.command.client.clientcmds.WhatAGreatPriceCommand">
+		
+		<map-to xml="WhatAGreatPriceCommand"
+			ns-uri="http://name.paulevans/samples/OrderSystem-commands"
+			ns-prefix="OSOperations" />
+			
+		<field name="Order" type="name.paulevans.sampleprojects.model.Order">
+			<bind-xml name="OSTypes:Order" />
+		</field>
+	</class>
+
+</mapping>

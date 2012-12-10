@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+
+<!-- Defines a SOAP binding and service for the order system operations -->
+<definitions 
+	xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:OSTypes="http://name.paulevans/samples/OrderSystem-types"
+	xmlns:OSCommands="http://name.paulevans/samples/OrderSystem-commands"
+	xmlns:definitions="http://name.paulevans/samples/OrderSystem-service-definitions"
+	xmlns:tns="http://name.paulevans/samples/OrderSystem/services"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	targetNamespace="http://name.paulevans/samples/OrderSystem/services">
+
+	<!-- Import the OrderSystem abstractions (types, messages, and port types) --> 
+	<import namespace="http://name.paulevans/samples/OrderSystem-service-definitions"
+		location="OrderSystem-abstract.wsdl" />
+
+	<!-- Define the bindings -->
+	<binding name="OrderSystemBinding" type="definitions:OrderSystemPortType">
+
+		<!-- we're going to use the SOAP binding and describe all 
+			 contained operations to use a style: document -->
+		<soap:binding style="document" 
+			transport="http://schemas.xmlsoap.org/soap/http" />
+
+		<!-- Defines our concrete calculate order sub-total operation -->
+		<operation name="CalculateOrderSubTotal">
+
+			<!-- Specify this operation as being document-oriented (using
+				 the style attribute here is redundant because we already 
+				 defined the operation-style using the <soap:binding> element 
+				 up above  -->
+			<soap:operation style="document"
+				soapAction="http://name.paulevans/samples/action/AnyCommand" />
+
+			<input>
+				<!-- SOAP extensibility element to specify the soap body of 
+					 the input (request) message -->
+				<soap:body parts="body" use="literal" />
+			</input>
+			<output>
+				<!-- Define the soap body of the output (response) message -->
+				<soap:body parts="body" use="literal" />
+			</output>
+		</operation>
+		
+		<!-- Defines our concrete 'what a great price!' operation -->
+		<operation name="WhatAGreatPrice">
+
+			<!-- Specify this operation as being document-oriented -->
+			<soap:operation style="document" 
+				soapAction="http://name.paulevans/samples/action/AnyCommand" />
+			<input>
+				<soap:body parts="body" use="literal" />
+			</input>
+			<output>
+				<soap:body parts="body" use="literal" />
+			</output>
+		</operation>
+	</binding>
+
+	<!-- the concrete service definition -->
+	<service name="OrderService">
+		<!-- Associate a binding with a network endpoint -->
+		<port name="OrderSystemPort" binding="tns:OrderSystemBinding">
+			<soap:address location="/" />
+		</port>
+	</service>
+</definitions>

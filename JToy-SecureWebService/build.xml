@@ -1,0 +1,495 @@
+<!--
+	Primary build targets:
+	========================================================
+	(+) dist-common: makes JARs that are common to both the client and server
+	(+) dist-server: makes JARs that are specific to the server
+	(+) dist-ws: 	 makes WAR (the web service)
+	(+) dist-client: makes JARs that are specific to the client
+	(+) dist-all: 	 makes all JARs (common, server, client)
+	(+) clientRelease: makes client application bundle (ZIP with dependent JARs and convenient executable script to run client application)
+	
+	Primary test targets:
+	========================================================
+	(+) unitTest: executes all JUnit-based unit tests; test and coverage reports
+				  are placed into 'generated/reports' folder
+	(+) integrationTest: executes all integration tests; test and
+						 coverage reports are placed into 'generated/reports'
+	
+	Author: Paul R Evans
+	Version: $Id$
+-->
+<project name="SecureWebService" default="dist-all" basedir=".">
+
+	<!-- specify properties in build.properties -->
+	<property file="build.properties" />
+
+	<!-- main client build classpath -->
+	<path id="client.build.class.path">
+		<fileset dir="${envLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${unitTestLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${mainClientLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<!-- main server build classpath -->
+	<path id="server.build.class.path">
+		<fileset dir="${envLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${unitTestLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${mainServerLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>	
+
+	<!-- unit test build classpath -->
+	<path id="unittest.class.path">
+		<fileset dir="${envLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${unitTestLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${mainClientLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${mainServerLibDir}">
+			<include name="**/*.jar" />
+		</fileset>		
+	</path>
+
+	<!-- cobertura classpath -->
+	<path id="cobertura.class.path">
+		<fileset dir="${coberturaLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<!-- checkstyle classpath -->
+	<path id="checkstyle.class.path">
+		<fileset dir="${checkstyleLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<!-- makes common build products -->
+	<target name="dist-common" depends="compile-common">
+		<mkdir dir="${distDir}/common" />
+
+		<!-- make model JAR -->
+		<jar destfile="${distDir}/common/model.jar">
+			<fileset dir="${mainServerBuildDir}">
+				<include name="**/model/**/*.class" />
+			</fileset>
+		</jar>
+
+		<!-- make common-command JAR -->
+		<jar destfile="${distDir}/common/common-command.jar">
+			<fileset dir="${mainServerBuildDir}">
+				<include name="**/command/*.class" />
+			</fileset>
+		</jar>		
+	</target>
+	
+	<!-- makes client-side build products -->
+	<target name="dist-client" depends="compile-client">
+		<mkdir dir="${distDir}/client" />
+		
+		<!-- make client-centric command JAR -->
+		<jar destfile="${distDir}/client/client-command.jar">
+			<fileset dir="${mainClientBuildDir}">
+				<include name="**/command/client/**/*.class" />
+			</fileset>
+		</jar>	
+		
+		<!-- make client application JAR -->
+		<jar destfile="${distDir}/client/client-application.jar">
+			<fileset dir="${mainClientBuildDir}">
+				<include name="**/clientapplication/**/*.class" />
+			</fileset>
+		</jar>
+		
+		<!-- make client util JAR -->
+		<jar destfile="${distDir}/client/client-util.jar">
+			<fileset dir="${mainClientBuildDir}">
+				<include name="**/util/client/**/*.class" />
+			</fileset>
+		</jar>		
+	</target>	
+	
+	<!-- makes server-side build products -->
+	<target name="dist-server" depends="compile-server">
+		<mkdir dir="${distDir}/server" />
+		
+		<!-- make server-centric command JAR -->
+		<jar destfile="${distDir}/server/server-command.jar">
+			<fileset dir="${mainServerBuildDir}">
+				<include name="**/command/server/**/*.class" />
+			</fileset>
+		</jar>
+		
+		<!-- make endpoint JAR -->
+		<jar destfile="${distDir}/server/endpoint.jar">
+			<fileset dir="${mainServerBuildDir}">
+				<include name="**/endpoint/**/*.class" />
+			</fileset>
+		</jar>
+	</target>
+	
+	<!-- makes web service build product -->
+	<target name="dist-ws" depends="dist-server,dist-common">
+		
+		<!-- make the web service build product (WAR) -->
+		<war warfile="${distDir}/server/${ant.project.name}.war"
+			webxml="${mainWebConfigSrcDir}/web.xml">
+			
+			<!-- needed JARs -->
+			<lib dir="${mainServerLibDir}">
+				<include name="**/*.jar" />
+			</lib>
+			
+			<!-- more needed JARs -->
+			<lib dir="${distDir}/common">
+				<include name="*.jar" />
+			</lib>		
+			
+			<!-- and even more needed JARs -->
+			<lib dir="${distDir}/server">
+				<include name="*.jar" />
+			</lib>					
+			
+			<!-- include common castor config mapping file -->
+			<classes dir="${mainConfigSrcDir}">
+				<include name="castor-mapping_commonTypes.xml" />
+			</classes>
+			
+			<!-- include server-centric castor config mapping file -->
+			<classes dir="${mainConfigSrcDir}/server">
+				<include name="castor-mapping_serverCommands.xml" />
+			</classes>
+			
+			<!-- other configuration files  -->
+			<webinf dir="${mainWebConfigSrcDir}">
+				<include name="classes/log4j.properties" /> <!-- logging -->
+				<include name="spring-ws-servlet.xml" /> <!-- Spring -->
+			</webinf>
+			
+			<!-- WSDL and canonical definitions -->
+			<webinf dir="${mainWebConfigSrcDir}">
+				<include name="wsdl/**/*" />
+			</webinf>
+		</war>
+	</target>
+	
+	<!-- makes all build products -->
+	<target name="dist-all" depends="dist-ws,dist-client" />
+	
+	<!-- makes client release package (a ZIP that bundles the entire
+	 	 client application -->
+	<target name="clientRelease" depends="dist-client,dist-common">
+		
+		<!-- create a folder to store the release bundle -->
+		<mkdir dir="${genDir}/release/${ant.project.name}-clientRelease" />
+		
+		<!-- copy JARs -->
+		<copy toDir="${genDir}/release/${ant.project.name}-clientRelease/lib">
+			<fileset dir="${distDir}/common">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${distDir}/client">
+				<include name="*.jar" />
+			</fileset>	
+			<fileset dir="${mainClientLibDir}">
+				<include name="*.jar" />
+			</fileset>
+		</copy>
+		
+		<!-- copy common Castor mapping file -->
+		<copy toDir="${genDir}/release/${ant.project.name}-clientRelease/config">			
+			<fileset dir="${mainConfigSrcDir}">
+				<include name="castor-mapping_commonTypes.xml" />
+			</fileset>
+		</copy>
+		
+		<!-- copy client-specific Castor mapping file -->
+		<copy toDir="${genDir}/release/${ant.project.name}-clientRelease/config">			
+			<fileset dir="${mainConfigSrcDir}/client">
+				<include name="castor-mapping_clientCommands.xml" />
+			</fileset>
+		</copy>
+		
+		<!-- copy client log4j configuration file -->
+		<copy toDir="${genDir}/release/${ant.project.name}-clientRelease/config">			
+			<fileset dir="${mainConfigSrcDir}/client">
+				<include name="log4j.client.properties" /> <!-- Log4j config -->
+				<include name="spring.xml" /> <!-- Spring config -->
+			</fileset>
+		</copy>
+		
+		<!-- copy client scripts -->
+		<copy toDir="${genDir}/release/${ant.project.name}-clientRelease">
+			<fileset dir="${mainExecutableSrcDir}/client">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+		
+		<!-- make the release bundle -->
+		<zip destfile="${distDir}/client/${ant.project.name}-clientRelease.zip" 
+			basedir="${genDir}/release" />
+	</target>
+
+	<!-- Clean out compiled and generated content -->
+	<target name="clean">
+		<delete dir="${distDir}" quiet="true" />
+		<delete includeemptydirs="true">
+		    <fileset dir="${mainServerBuildDir}">
+				<include name="**/*" />
+		    	<exclude name="*.properties" />
+		    	<exclude name="*.xml" />
+		    </fileset>
+		</delete>
+		<delete dir="${genDir}" quiet="true" />
+		<delete dir="${testBuildDir}" quiet="true" />
+		<delete dir="${mainClientBuildDir}" quiet="true" />
+	</target>
+
+	<!-- Setup Steps Required Before Compilation -->
+	<target name="init">	
+		<mkdir dir="${testBuildDir}" />
+		<mkdir dir="${unitTestBuildDir}" />
+		<mkdir dir="${mainClientBuildDir}" />
+		<mkdir dir="${distDir}" />
+		<mkdir dir="${genJavadocDir}" />
+		<mkdir dir="${genMainJavaSrcDir}" />
+		<mkdir dir="${genCoberturaUnitTestDataFileDir}" />
+		<mkdir dir="${genRawUnitTestReportsDir}" />
+		<mkdir dir="${genCheckstyleReportsDir}" />
+		<mkdir dir="${genFormattedUnitTestReportsDir}" />
+		<mkdir dir="${genCoberturaUnitTestReportsDir}" />
+		<mkdir dir="${genCoberturaInstrumentedUnitTestClassesDir}" />		
+	</target>
+	
+	<!-- compiles all java source -->
+	<target name="compile-all" depends="compile-client,compile-server" />
+
+	<!-- compiles server java source -->
+	<target name="compile-server" depends="compile-common">
+		<javac destdir="${mainServerBuildDir}" deprecation="yes" debug="yes">
+			<src path="${mainJavaSrcDir}" />
+			<classpath refid="server.build.class.path" />
+			<include name="**/command/server/**/*.java" />
+			<include name="**/endpoint/**/*.java" />
+		</javac>
+	</target>	
+	
+	<!-- compiles client java source -->
+	<target name="compile-client" depends="compile-common">
+		<javac destdir="${mainClientBuildDir}" deprecation="yes" debug="yes">
+			<src path="${mainJavaSrcDir}" />
+			<classpath refid="client.build.class.path" />
+			<include name="**/command/client/**/*.java" />
+			<include name="**/clientapplication/**/*.java" />
+			<include name="**/util/client/**/*.java" />
+		</javac>
+	</target>
+	
+	<!-- compiles java source common to both client and server -->
+	<target name="compile-common" depends="init">
+		<javac destdir="${mainServerBuildDir}" deprecation="yes" debug="yes">
+			<src path="${mainJavaSrcDir}" />
+			<classpath refid="server.build.class.path" />
+			<include name="**/model/**/*.java" />
+			<include name="**/command/*.java" />
+		</javac>
+		
+		<!-- copy compilation results to client-bin as well -->
+		<copy todir="${mainClientBuildDir}">
+		    <fileset dir="${mainServerBuildDir}">
+		    	<include name="**/model/**/*.class" />
+		    	<include name="**/command/*.class" />
+		    </fileset>
+		 </copy>
+	</target>
+
+	<!-- compiles java source -->
+	<target name="unitTest-compile" depends="compile-all">
+		<javac destdir="${unitTestBuildDir}" deprecation="yes" debug="yes">
+			<src path="${unitTestJavaSrcDir}" />
+			<classpath refid="unittest.class.path" />
+			<classpath>
+				<pathelement location="${mainClientBuildDir}" />
+				<pathelement location="${mainServerBuildDir}" />
+			</classpath>
+		</javac>
+	</target>
+
+	<!-- Make the JavaDoc -->
+	<target name="javadoc" depends="init">
+
+		<!-- generate the javadoc -->
+		<javadoc sourcepath="${mainJavaSrcDir}"
+				 packagenames="${javadocPackageNames}"
+				 destdir="${genJavadocDir}" Private="yes" />
+	</target>
+	
+	<!-- runs checkstyle to check the quality/compliance of the source code -->
+	<target name="checkstyle" depends="init">
+		
+		<!-- taskdef needed in order to use checkstyle tasks -->
+		<taskdef classpathref="checkstyle.class.path"
+			resource="checkstyletask.properties" />
+		
+		<!-- run checkstyle -->
+		<checkstyle config="${checkstyleConfigSrcDir}/sun_checks.xml" 
+			failOnViolation="false">
+		    <formatter type="xml" 
+		    	tofile="${genCheckstyleReportsDir}/checkstyle_report.xml" />
+		    <fileset dir="${mainJavaSrcDir}" includes="**/*.java" />
+		 </checkstyle>
+
+		 <xslt in="${genCheckstyleReportsDir}/checkstyle_report.xml" 
+		 	out="${genCheckstyleReportsDir}/checkstyle_report.html" 
+		 	style="${checkstyleConfigSrcDir}/styles/checkstyle-author.xsl" />
+	</target>
+
+	<!-- unit test the codebase -->
+	<target name="unitTest" depends="unitTest-compile">
+
+		<!-- invoke the "code-coverage-setup" target -->
+		<antcall target="code-coverage-setup" />
+
+		<!-- run all junit tests using instrumented classes -->
+		<junit printsummary="yes" haltonfailure="no" failureproperty="tests.failed">
+
+			<!-- Specify the name of the coverage data file to use.  The value 
+			specified below is the default -->
+			<sysproperty
+				key="net.sourceforge.cobertura.datafile"
+				value="${genCoberturaUnitTestDataFileDir}/${coberturaDataFileName}" />
+
+			<!-- define the classpath for junit to use -->
+			<classpath>
+
+				<!-- put instrumented classes onto the classpath first (the
+				"cobertura-instrument" task only moves classes over to the
+				"to-dir" location; interfaces are omitted.  Therefore we
+				need to add the various output-folders to the classpath so the
+				interface .class files are also added to the classpath; the
+				trick is to add the instrumented-classes to the classpath
+				first so they are loaded instead of the non-instrumented classes.  -->
+				<pathelement location="${genCoberturaInstrumentedUnitTestClassesDir}" />
+
+				<!-- put the various output-directories onto the classpath for the
+				sake of the java interfaces (to reiterate the above comment, the only
+				reason to have these 3 entries is so that the various interfaces
+				are added to the classpath; the instrumented-classes folder added right
+				above only puts the "classes" onto the classpath; the cobertura-instrument
+				task ONLY moves the classes .class files to its "to-dir" location; the
+				interface .class files are omitted. -->
+				<pathelement location="${mainClientBuildDir}" />
+				<pathelement location="${mainServerBuildDir}" />
+
+				<!-- put JUnit test cases onto the classpath -->
+				<pathelement location="${unitTestBuildDir}" />
+				
+				<!-- put unit test specific configuration files onto the classpath -->
+				<pathelement location="${unitTestConfigDir}" />
+				
+				<!-- put main config source folder on classpath (contains commons
+					 Castor mapping file) -->
+				<pathelement location="${mainConfigSrcDir}" />
+				
+				<!-- put main config client source folder on classpath (contains
+					 client-centric Castor mapping file) -->
+				<pathelement location="${mainConfigSrcDir}/client" />
+					
+				<!-- put main config client source folder on classpath (contains
+					 server-centric Castor mapping file) -->
+				<pathelement location="${mainConfigSrcDir}/server" />					
+
+				<!-- put dependent jar files into the classpath -->
+				<path refid="unittest.class.path" />
+				<path refid="cobertura.class.path" />
+			</classpath>
+
+			<!-- use the xml formatter -->
+			<formatter type="xml" />
+
+			<!-- execute the tests -->
+			<batchtest fork="yes" todir="${genRawUnitTestReportsDir}">
+				<fileset dir="${unitTestBuildDir}">
+					<include name="**/Test*.class" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<!-- create the formatted unit test results-report -->
+		<junitreport todir="${genFormattedUnitTestReportsDir}">
+			<fileset dir="${genRawUnitTestReportsDir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames"
+					todir="${genFormattedUnitTestReportsDir}" />
+		</junitreport>
+
+		<!-- create the formatted coverage report -->
+		<antcall target="code-coverage-report" />
+
+		<!-- print alert if one or more tests failed -->
+		<fail if="tests.failed">
+			tests.failed=${tests.failed}
+			***********************************************************
+			***********************************************************
+			**** One or more tests failed! Check the output ... ****
+			***********************************************************
+			***********************************************************
+		</fail>
+	</target>
+
+	<!-- instrument the codebase for coverage analysis -->
+	<target name="code-coverage-setup">
+
+		<!-- taskdef needed for Cobertura tasks -->
+		<taskdef classpathref="cobertura.class.path" resource="tasks.properties" />
+
+		<!-- instrument the classes excluding junit test-classes -->
+		<cobertura-instrument
+				todir="${genCoberturaInstrumentedUnitTestClassesDir}"
+				datafile="${genCoberturaUnitTestDataFileDir}/${coberturaDataFileName}">
+
+			<!-- instrument the 'client' class files -->
+			<fileset dir="${mainClientBuildDir}">
+				<include name="**/*.class" />
+			</fileset>
+			
+			<!-- instrument the 'server' class files -->
+			<fileset dir="${mainServerBuildDir}">
+				<include name="**/*.class" />
+			</fileset>
+		</cobertura-instrument>
+	</target>
+
+	<!-- Generate code coverage report -->
+	<target name="code-coverage-report">
+
+		<!-- taskdef needed for Cobertura tasks -->
+		<taskdef classpathref="cobertura.class.path" resource="tasks.properties" />
+
+		<!-- create the coverage report -->
+		<cobertura-report format="html"
+			datafile="${genCoberturaUnitTestDataFileDir}/${coberturaDataFileName}"
+			destdir="${genCoberturaUnitTestReportsDir}">
+
+			<fileset dir="${mainJavaSrcDir}">
+				<include name="**/*.java" />
+			</fileset>
+		</cobertura-report>
+	</target>
+</project> 

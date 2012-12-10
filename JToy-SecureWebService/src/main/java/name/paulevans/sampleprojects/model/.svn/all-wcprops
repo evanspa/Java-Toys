@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2/trunk/src/main/java/name/paulevans/sampleprojects/model
+END
+Product.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/2/trunk/src/main/java/name/paulevans/sampleprojects/model/Product.java
+END
+LineItem.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/2/trunk/src/main/java/name/paulevans/sampleprojects/model/LineItem.java
+END
+Order.java
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/2/trunk/src/main/java/name/paulevans/sampleprojects/model/Order.java
+END

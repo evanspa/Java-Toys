@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+
+<!-- 
+	Defines a set of web service operations for the Order System domain
+	
+	Author: Paul R Evans
+	Version: $Id$
+-->
+<definitions 
+	xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:OSTypes="http://name.paulevans/samples/OrderSystem-types"
+	xmlns:OSCommands="http://name.paulevans/samples/OrderSystem-commands"
+	xmlns:tns="http://name.paulevans/samples/OrderSystem-service-definitions"
+	targetNamespace="http://name.paulevans/samples/OrderSystem-service-definitions">
+
+	<!-- Define the types -->
+	<types>
+
+		<!-- import the types and operations canonicals -->
+		<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+			<!-- import our order system operations schema -->
+			<xsd:import
+				namespace="http://name.paulevans/samples/OrderSystem-commands" 
+				schemaLocation="canonicals/OrderSystem-commands.xsd" />
+		</xsd:schema>
+	</types>
+
+	<!-- Define the message that represents the calculate order
+		 sub-total command request message -->
+	<message name="CalculateOrderSubTotalCmdMsg">
+		<part name="body" element="OSCommands:CalculateOrderSubTotalCommand" />
+	</message>
+	
+	<!-- Define the message that represents the 'what a great price!'
+		 command request message -->
+	<message name="WhatAGreatPriceCmdMsg">
+		<part name="body" element="OSCommands:WhatAGreatPriceCommand" />
+	</message>
+
+	<!-- Define an order message -->
+	<message name="tns:OrderMsg">
+		<part name="body" element="OSTypes:Order" />
+	</message>
+
+	<!-- Define the set of operations to be exposed by this interface -->
+	<portType name="OrderSystemPortType">
+
+		<!-- Define calculate order sub-total operation
+			 in which the input is a 'command' message and the
+			 output is an 'Order' -->
+		<operation name="CalculateOrderSubTotal">
+			<input message="tns:CalculateOrderSubTotalCmdMsg" />
+			<output message="tns:OrderMsg" />
+		</operation>
+		
+		<!-- Define 'what a great price!' operation
+			 in which the input is a 'command' message and the
+			 output is an 'Order' -->
+		<operation name="WhatAGreatPrice">
+			<input message="tns:WhatAGreatPriceCmdMsg" />
+			<output message="tns:OrderMsg" />
+		</operation>
+	</portType>
+</definitions>
