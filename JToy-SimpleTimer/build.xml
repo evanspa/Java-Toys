@@ -1,0 +1,324 @@
+<!--
+	Primary build targets:
+	========================================================
+	(+) dist: makes JAR containing compiled Java
+	(+) release: makes application bundle (ZIP with dependent JARs and convenient executable script to run application)
+	(+) run: runs the application right from this script (in a new JVM)
+	
+	Primary test targets:
+	========================================================
+	(+) unitTest: executes all JUnit-based unit tests; test and coverage reports
+				  are placed into 'generated/reports' folder
+	(+) integrationTest: executes all integration tests; test and
+						 coverage reports are placed into 'generated/reports'
+	
+	Author: Paul R Evans
+	Version: $Id$
+-->
+<project name="SimpleTimer" default="dist" basedir=".">
+
+	<!-- specify properties in build.properties -->
+	<property file="build.properties" />
+
+	<!-- main build classpath -->
+	<path id="build.class.path">
+		<fileset dir="${envLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${unitTestLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${mainLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- runtime build classpath -->
+	<path id="runtime.class.path">
+		<fileset dir="${mainLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- unit test build classpath -->
+	<path id="unittest.class.path">
+		<fileset dir="${envLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${unitTestLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${mainLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- cobertura classpath -->
+	<path id="cobertura.class.path">
+		<fileset dir="${coberturaLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<!-- checkstyle classpath -->
+	<path id="checkstyle.class.path">
+		<fileset dir="${checkstyleLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<!-- makes primary build product -->
+	<target name="dist" depends="compile">
+		
+		<!-- make endpoint JAR -->
+		<jar destfile="${distDir}/${ant.project.name}.jar">
+			<fileset dir="${mainBuildDir}">
+				<include name="**/*.class" />
+			</fileset>
+		</jar>
+	</target>
+	
+	<!-- makes release package (a ZIP that bundles the entire application -->
+	<target name="release" depends="dist">
+		
+		<!-- create a folder to store the release bundle -->
+		<mkdir dir="${genDir}/release/${ant.project.name}-release" />
+		
+		<!-- create 'logs' folder -->
+		<mkdir dir="${genDir}/release/${ant.project.name}-release/logs" />
+		
+		<!-- copy JARs -->
+		<copy toDir="${genDir}/release/${ant.project.name}-release/lib">
+			<fileset dir="${distDir}">
+				<include name="*.jar" />
+			</fileset>	
+			<fileset dir="${mainLibDir}">
+				<include name="*.jar" />
+			</fileset>
+		</copy>
+				
+		<!-- copy log4j configuration file -->
+		<copy toDir="${genDir}/release/${ant.project.name}-release/config">			
+			<fileset dir="${mainConfigSrcDir}">
+				<include name="log4j.properties" />
+			</fileset>
+		</copy>
+		
+		<!-- copy scripts -->
+		<copy toDir="${genDir}/release/${ant.project.name}-release">
+			<fileset dir="${mainExecutableSrcDir}">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+		
+		<!-- make the release bundle -->
+		<zip destfile="${distDir}/${ant.project.name}-release.zip" 
+			basedir="${genDir}/release" />
+	</target>
+	
+	<!-- Clean out compiled and generated content -->
+	<target name="clean">
+		<delete dir="${distDir}" quiet="true" />
+		<delete dir="${genDir}" quiet="true" />
+		<delete dir="${mainBuildDir}" quiet="true" />
+		<delete dir="${testBuildDir}" quiet="true" />
+	</target>
+
+	<!-- Setup Steps Required Before Compilation -->
+	<target name="init">	
+		<mkdir dir="${testBuildDir}" />
+		<mkdir dir="${unitTestBuildDir}" />
+		<mkdir dir="${mainBuildDir}" />
+		<mkdir dir="${distDir}" />
+		<mkdir dir="${genJavadocDir}" />
+		<mkdir dir="${genMainJavaSrcDir}" />
+		<mkdir dir="${genCoberturaUnitTestDataFileDir}" />
+		<mkdir dir="${genRawUnitTestReportsDir}" />
+		<mkdir dir="${genCheckstyleReportsDir}" />
+		<mkdir dir="${genFormattedUnitTestReportsDir}" />
+		<mkdir dir="${genCoberturaUnitTestReportsDir}" />
+		<mkdir dir="${genCoberturaInstrumentedUnitTestClassesDir}" />		
+	</target>
+	
+	<!-- compiles java source -->
+	<target name="compile" depends="init">
+		<javac destdir="${mainBuildDir}" deprecation="yes" debug="yes">
+			<src path="${mainJavaSrcDir}" />
+			<classpath refid="build.class.path" />
+		</javac>
+	</target>
+	
+	<!-- Runs the program - i.e. the main() method found in ${mainClass} -->
+	<target name="run" depends="compile">
+		<java classname="${mainClass}" fork="true">
+			<classpath refid="build.class.path"/>
+			<classpath>
+				<pathelement location="${mainBuildDir}"/>
+			</classpath>
+			<jvmarg value="-Dlog4j.configuration=file:${mainConfigSrcDir}/log4j.properties"/>
+		</java>
+	</target>
+
+	<!-- compiles java source -->
+	<target name="unitTest-compile" depends="compile">
+		<javac destdir="${unitTestBuildDir}" deprecation="yes" debug="yes">
+			<src path="${unitTestJavaSrcDir}" />
+			<classpath refid="unittest.class.path" />
+			<classpath>
+				<pathelement location="${mainBuildDir}" />
+			</classpath>
+		</javac>
+	</target>
+
+	<!-- Make the JavaDoc -->
+	<target name="javadoc" depends="init">
+
+		<!-- generate the javadoc -->
+		<javadoc sourcepath="${mainJavaSrcDir}"
+				 packagenames="${javadocPackageNames}"
+				 destdir="${genJavadocDir}" Private="yes" />
+	</target>
+	
+	<!-- runs checkstyle to check the quality/compliance of the source code -->
+	<target name="checkstyle" depends="init">
+		
+		<!-- taskdef needed in order to use checkstyle tasks -->
+		<taskdef classpathref="checkstyle.class.path"
+			resource="checkstyletask.properties" />
+		
+		<!-- run checkstyle -->
+		<checkstyle config="${checkstyleConfigSrcDir}/sun_checks.xml" 
+			failOnViolation="false">
+		    <formatter type="xml" 
+		    	tofile="${genCheckstyleReportsDir}/checkstyle_report.xml" />
+		    <fileset dir="${mainJavaSrcDir}" includes="**/*.java" />
+		 </checkstyle>
+
+		 <xslt in="${genCheckstyleReportsDir}/checkstyle_report.xml" 
+		 	out="${genCheckstyleReportsDir}/checkstyle_report.html" 
+		 	style="${checkstyleConfigSrcDir}/styles/checkstyle-author.xsl" />
+	</target>
+
+	<!-- unit test the codebase -->
+	<target name="unitTest" depends="unitTest-compile">
+
+		<!-- invoke the "code-coverage-setup" target -->
+		<antcall target="code-coverage-setup" />
+
+		<!-- run all junit tests using instrumented classes -->
+		<junit printsummary="yes" haltonfailure="no" 
+			failureproperty="tests.failed">
+
+			<!-- Specify the name of the coverage data file to use.  The value 
+			specified below is the default -->
+			<sysproperty
+				key="net.sourceforge.cobertura.datafile"
+				value="${genCoberturaUnitTestDataFileDir}/${coberturaDataFileName}" />
+
+			<!-- define the classpath for junit to use -->
+			<classpath>
+
+				<!-- put instrumented classes onto the classpath first (the
+				"cobertura-instrument" task only moves classes over to the
+				"to-dir" location; interfaces are omitted.  Therefore we
+				need to add the various output-folders to the classpath so the
+				interface .class files are also added to the classpath; the
+				trick is to add the instrumented-classes to the classpath
+				first so they are loaded instead of the non-instrumented classes.  -->
+				<pathelement location="${genCoberturaInstrumentedUnitTestClassesDir}" />
+
+				<!-- put the various output-directories onto the classpath for the
+				sake of the java interfaces (to reiterate the above comment, the only
+				reason to have these 3 entries is so that the various interfaces
+				are added to the classpath; the instrumented-classes folder added right
+				above only puts the "classes" onto the classpath; the cobertura-instrument
+				task ONLY moves the classes .class files to its "to-dir" location; the
+				interface .class files are omitted. -->
+				<pathelement location="${mainBuildDir}" />
+
+				<!-- put JUnit test cases onto the classpath -->
+				<pathelement location="${unitTestBuildDir}" />
+				
+				<!-- put unit test specific configuration files onto the classpath -->
+				<pathelement location="${unitTestConfigDir}" />
+				
+				<!-- put main config source folder on classpath (contains commons
+					 Castor mapping file) -->
+				<pathelement location="${mainConfigSrcDir}" />				
+
+				<!-- put dependent jar files into the classpath -->
+				<path refid="unittest.class.path" />
+				<path refid="cobertura.class.path" />
+			</classpath>
+
+			<!-- use the xml formatter -->
+			<formatter type="xml" />
+
+			<!-- execute the tests -->
+			<batchtest fork="yes" todir="${genRawUnitTestReportsDir}">
+				<fileset dir="${unitTestBuildDir}">
+					<include name="**/Test*.class" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<!-- create the formatted unit test results-report -->
+		<junitreport todir="${genFormattedUnitTestReportsDir}">
+			<fileset dir="${genRawUnitTestReportsDir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames"
+					todir="${genFormattedUnitTestReportsDir}" />
+		</junitreport>
+
+		<!-- create the formatted coverage report -->
+		<antcall target="code-coverage-report" />
+
+		<!-- print alert if one or more tests failed -->
+		<fail if="tests.failed">
+			tests.failed=${tests.failed}
+			***********************************************************
+			***********************************************************
+			**** One or more tests failed! Check the output ... ****
+			***********************************************************
+			***********************************************************
+		</fail>
+	</target>
+
+	<!-- instrument the codebase for coverage analysis -->
+	<target name="code-coverage-setup">
+
+		<!-- taskdef needed for Cobertura tasks -->
+		<taskdef classpathref="cobertura.class.path"
+			resource="tasks.properties" />
+
+		<!-- instrument the classes excluding junit test-classes -->
+		<cobertura-instrument
+			todir="${genCoberturaInstrumentedUnitTestClassesDir}"
+			datafile="${genCoberturaUnitTestDataFileDir}/${coberturaDataFileName}">
+
+			<fileset dir="${mainBuildDir}">
+				<include name="**/*.class" />
+			</fileset>
+		</cobertura-instrument>
+	</target>
+
+	<!-- Generate code coverage report -->
+	<target name="code-coverage-report">
+
+		<!-- taskdef needed for Cobertura tasks -->
+		<taskdef classpathref="cobertura.class.path" 
+			resource="tasks.properties" />
+
+		<!-- create the coverage report -->
+		<cobertura-report format="html"
+			datafile="${genCoberturaUnitTestDataFileDir}/${coberturaDataFileName}"
+			destdir="${genCoberturaUnitTestReportsDir}">
+
+			<fileset dir="${mainJavaSrcDir}">
+				<include name="**/*.java" />
+			</fileset>
+		</cobertura-report>
+	</target>
+	
+</project> 
