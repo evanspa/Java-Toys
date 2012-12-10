@@ -78,12 +78,12 @@ build target contains no server-side code.
 In my opinion the business value of using Spring-WS is that it
 ultimately forces you down a path in which you're more likely to think through
 the following:
-	+ + The design of the input and output messages (i.e. XML messages); you're
+	+ The design of the input and output messages (i.e. XML messages); you're
 		more apt to create a canonical data model (such models would be used in
 		other contexts - not just a web service context).  Follow this link
 		[http://www.enterpriseintegrationpatterns.com/CanonicalDataModel.html]
 		to read on canonical data models from the standpoint of integration.
-	+ + Now that you have XSD-based canonicals, you can create a marshaler
+	+ Now that you have XSD-based canonicals, you can create a marshaler
 		that can translate XML instances to-and-from a Java object model.  So
 		now you have canonical XSDs, a marshaler, and a Java object model - all
 		this and we don't even have a web service yet!  But having these 3 things
@@ -114,15 +114,15 @@ It gets developers thinking about security!
 bit light
 + Some aspects of this project are not suitable for implementing in a production
 environment.  Some of those aspects being:
-	+ + the keystore passwords are sitting in plain text in the Spring
+	+ the keystore passwords are sitting in plain text in the Spring
 		configuration file - obviously this is unacceptable and not suitable for
 		production scenarios.
-	+ + Sun keystores are very basic and file-based structures for storing
+	+ Sun keystores are very basic and file-based structures for storing
 		cryptographic artifacts (such as private keys and certificates) and only
 		provide a command-line interface for managing.  Sun keystores may be
 		okay in small environments, but, in large enterprises a more
 		"enterprise-grade" implementation should be sought.
-	+ + The keystore passwords and private key passphrases are all the same - 
+	+ The keystore passwords and private key passphrases are all the same - 
 		'changeit'.  This is done for simplicity and is obviously not recommended
 		for a production environment.
 + As mentioned in the 'Notables' section above, the web service uses the
