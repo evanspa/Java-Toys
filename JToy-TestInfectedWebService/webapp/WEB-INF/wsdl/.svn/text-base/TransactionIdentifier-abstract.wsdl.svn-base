@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+
+<!-- 
+	Defines a set of web service operations for the Order System domain
+	
+	Author: Paul R Evans
+	Version: $Id$
+-->
+<definitions 
+	xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:TxnIdCommands="http://name.paulevans/samples/TransactionIdentifier-commands"
+	xmlns:tns="http://name.paulevans/samples/TransactionIdentifier-service-definitions"
+	targetNamespace="http://name.paulevans/samples/TransactionIdentifier-service-definitions">
+
+	<!-- Define the types -->
+	<types>
+
+		<!-- import the types and operations canonicals -->
+		<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+			<!-- import our transaction identifier operations schema -->
+			<xsd:import
+				namespace="http://name.paulevans/samples/TransactionIdentifier-commands" 
+				schemaLocation="canonicals/TransactionIdentifier-commands.xsd" />
+		</xsd:schema>
+	</types>
+
+	<!-- Define the message that represents the transaction id generator command
+		 request message -->
+	<message name="TransactionIdGeneratorCmdMsg">
+		<part name="body" element="TxnIdCommands:TransactionIdGeneratorCommand" />
+	</message>
+
+	<!-- Defines a message that will contain the response -->
+	<message name="TransactionIdMsg">
+		<part name="body" element="TxnIdCommands:TransactionIdentifier" />
+	</message>
+
+	<!-- Define the set of operations to be exposed by this interface -->
+	<portType name="TransactionIdentifierPortType">
+
+		<!-- Define generate transaction identifier operation
+			 in which the input is a 'command' message and the
+			 output is a 'transaction id' message -->
+		<operation name="GenerateTransactionIdentifier">
+			<input message="tns:TransactionIdGeneratorCmdMsg" />
+			<output message="tns:TransactionIdMsg" />
+		</operation>
+	</portType>
+</definitions>

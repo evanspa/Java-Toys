@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<TxnIdGenCmds:TransactionIdGeneratorCommand 
+	xmlns:TxnIdGenCmds="http://name.paulevans/samples/TransactionIdentifier-commands">
+	
+	<TxnIdGenCmds:channel>Web</TxnIdGenCmds:channel>
+	<TxnIdGenCmds:usecase>Search Products</TxnIdGenCmds:usecase>	
+</TxnIdGenCmds:TransactionIdGeneratorCommand>

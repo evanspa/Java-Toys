@@ -1,0 +1,594 @@
+<!DOCTYPE project>
+
+<!--
+	Primary build targets:
+	========================================================
+	(+) _private_dist-common: makes JARs that are common to both the client and server
+	(+) _private_dist-server: makes JARs that are specific to the server
+	(+) _private_dist-ws: 	 makes WAR (the web service)
+	(+) _private_dist-client: makes JARs that are specific to the client
+	(+) dist-all: 	 makes all JARs (common, server, client)
+	(+) clientRelease: makes client application bundle (ZIP with dependent JARs 
+					   and convenient executable script to run client
+					   application)
+	
+	Primary test targets:
+	========================================================
+	(+) unitTest: executes all JUnit-based unit tests; test and coverage reports
+				  are placed into 'generated/reports' folder
+	(+) integrationTest: executes all integration tests; test and
+						 coverage reports are placed into 'generated/reports'
+						 
+	A note about 'private' targets:
+	========================================================
+	Some targets have a name prefixed with '_private_' - this is to indicate the
+	target should not (or does not need to) be invoked directly; it is instead 
+	invoked be other targets using the <antcall> task or by listing it as a 
+	dependency target.
+	
+	Author: Paul R Evans
+-->
+<project name="TransactionIdService" default="dist-all" basedir=".">
+
+	<!-- specify properties in build.properties -->
+	<property file="build.properties" />
+
+	<!-- main client build classpath -->
+	<path id="client.build.class.path">
+		<fileset dir="${envLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${testLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${mainClientLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<!-- main server build classpath -->
+	<path id="server.build.class.path">
+		<fileset dir="${envLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${testLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${mainServerLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>	
+
+	<!-- integration test build classpath -->
+	<path id="integrationtest.class.path">
+		<fileset dir="${envLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${testLibDir}/JUnit">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${testLibDir}/Cargo">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${testLibDir}/Spring-test">
+			<include name="**/*.jar" />
+		</fileset>		
+		<fileset dir="${mainClientLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${mainServerLibDir}">
+			<include name="**/*.jar" />
+		</fileset>		
+	</path>	
+	
+	<!-- unit test build classpath -->
+	<path id="unittest.class.path">
+		<fileset dir="${envLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${testLibDir}/EasyMock">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${testLibDir}/JUnit">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${testLibDir}/Spring-WS-test">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${testLibDir}/XMLUnit">
+			<include name="**/*.jar" />
+		</fileset>		
+		<fileset dir="${mainClientLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${mainServerLibDir}">
+			<include name="**/*.jar" />
+		</fileset>		
+	</path>
+
+	<!-- cobertura classpath -->
+	<path id="cobertura.class.path">
+		<fileset dir="${coberturaLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<!-- checkstyle classpath -->
+	<path id="checkstyle.class.path">
+		<fileset dir="${checkstyleLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<!-- Setup Steps Required Before Compilation -->
+	<target name="_private_init">	
+		<mkdir dir="${testBuildDir}" />
+		<mkdir dir="${unitTestBuildDir}" />
+		<mkdir dir="${integrationTestBuildDir}" />
+		<mkdir dir="${mainClientBuildDir}" />
+		<mkdir dir="${distDir}" />
+		<mkdir dir="${genJavadocDir}" />
+		<mkdir dir="${genMainJavaSrcDir}" />
+		<mkdir dir="${genCheckstyleReportsDir}" />
+		<mkdir dir="${genCoberturaUnitTestDataFileDir}" />
+		<mkdir dir="${genRawUnitTestReportsDir}" />		
+		<mkdir dir="${genFormattedUnitTestReportsDir}" />
+		<mkdir dir="${genCoberturaUnitTestReportsDir}" />
+		<mkdir dir="${genCoberturaInstrumentedUnitTestClassesDir}" />
+		<mkdir dir="${genCoberturaIntegrationTestDataFileDir}" />
+		<mkdir dir="${genRawIntegrationTestReportsDir}" />		
+		<mkdir dir="${genFormattedIntegrationTestReportsDir}" />
+		<mkdir dir="${genCoberturaIntegrationTestReportsDir}" />
+		<mkdir dir="${genCoberturaInstrumentedIntegrationTestClassesDir}" />
+		<mkdir dir="${genCargoConfigTargetBaseDir}" />
+	</target>
+	
+	<!-- Clean out compiled and generated content -->
+	<target name="clean">
+		<delete dir="${distDir}" quiet="true" />
+		<delete includeemptydirs="true">
+		    <fileset dir="${mainServerBuildDir}">
+				<include name="**/*" />
+		    	<exclude name="*.properties" />
+		    	<exclude name="*.xml" />
+		    </fileset>
+		</delete>
+		<delete dir="${genDir}" quiet="true" />
+		<delete dir="${testBuildDir}" quiet="true" />
+		<delete dir="${mainClientBuildDir}" quiet="true" />
+	</target>	
+	
+	<!-- compiles all java source -->
+	<target name="compile-all" depends="_private_testUtils-compile,_private_compile-client,_private_compile-server" />
+
+	<!-- compiles server java source -->
+	<target name="_private_compile-server" depends="_private_compile-common">
+		<javac destdir="${mainServerBuildDir}" deprecation="yes" debug="yes">
+			<src path="${mainJavaSrcDir}" />
+			<classpath refid="server.build.class.path" />
+			<include name="**/server/**/*.java" />
+		</javac>
+	</target>	
+	
+	<!-- compiles client java source -->
+	<target name="_private_compile-client" depends="_private_compile-common">
+		<javac destdir="${mainClientBuildDir}" deprecation="yes" debug="yes">
+			<src path="${mainJavaSrcDir}" />
+			<classpath refid="client.build.class.path" />
+			<include name="**/client/**/*.java" />
+		</javac>
+	</target>
+	
+	<!-- compiles java source common to both client and server -->
+	<target name="_private_compile-common" depends="_private_init">
+		<javac destdir="${mainServerBuildDir}" deprecation="yes" debug="yes">
+			<src path="${mainJavaSrcDir}" />
+			<classpath refid="server.build.class.path" />
+			<include name="**/*.java" />
+			<exclude name="**/client/**/*.java" />
+			<exclude name="**/server/**/*.java" />
+			<exclude name="**/testutils/**/*.java" />
+		</javac>
+		
+		<!-- copy compilation results to client-bin as well -->
+		<copy todir="${mainClientBuildDir}">
+		    <fileset dir="${mainServerBuildDir}">
+		    	<include name="**/*.class" />
+				<exclude name="**/client/**/*.class" />
+				<exclude name="**/server/**/*.class" />	    	
+		    </fileset>
+		 </copy>
+	</target>
+
+	<!-- compiles unit test java source -->
+	<target name="_private_unitTest-compile" depends="compile-all">
+		<javac destdir="${unitTestBuildDir}" deprecation="yes" debug="yes">
+			<src path="${unitTestSrcDir}" />
+			<classpath refid="unittest.class.path" />
+			<classpath>
+				<pathelement location="${mainClientBuildDir}" />
+				<pathelement location="${mainServerBuildDir}" />
+			</classpath>
+		</javac>
+	</target>
+	
+	<!-- compiles test utils java source -->
+	<target name="_private_testUtils-compile" depends="_private_init">
+		<javac destdir="${unitTestBuildDir}" deprecation="yes" debug="yes">
+			<src path="${mainJavaSrcDir}" />
+			<classpath refid="integrationtest.class.path" />
+			<classpath refid="unittest.class.path" />
+		</javac>
+		
+		<!-- copy compilation results to integration bin as well -->
+		<copy todir="${integrationTestBuildDir}">
+		    <fileset dir="${unitTestBuildDir}">
+		    	<include name="**/testutils/*.class" />		    	
+		    </fileset>
+		 </copy>		
+	</target>	
+	
+	<!-- compiles integration test java source -->
+	<target name="_private_integrationTest-compile" depends="compile-all">
+		<javac destdir="${integrationTestBuildDir}" deprecation="yes" debug="yes">
+			<src path="${integrationTestSrcDir}" />
+			<classpath refid="integrationtest.class.path" />
+			<classpath>
+				<pathelement location="${mainClientBuildDir}" />
+				<pathelement location="${mainServerBuildDir}" />
+			</classpath>
+		</javac>
+	</target>
+	
+	<!-- makes common build products -->
+	<target name="_private_dist-common" depends="_private_compile-common">
+		<mkdir dir="${distDir}/common" />
+
+		<!-- make common-command JAR -->
+		<jar destfile="${distDir}/common/${ant.project.name}-common-command.jar">
+			<fileset dir="${mainServerBuildDir}">
+				<include name="**/*.class" />
+				<exclude name="**/client/**/*.class" />
+				<exclude name="**/server/**/*.class" />
+			</fileset>
+		</jar>		
+	</target>
+	
+	<!-- makes client-side build products -->
+	<target name="_private_dist-client" depends="_private_compile-client">
+		<mkdir dir="${distDir}/client" />
+		
+		<!-- make client-centric command JAR -->
+		<jar destfile="${distDir}/client/${ant.project.name}-client-command.jar">
+			<fileset dir="${mainClientBuildDir}">
+				<include name="**/client/**/*.class" />
+			</fileset>
+		</jar>			
+	</target>	
+	
+	<!-- makes server-side build products -->
+	<target name="_private_dist-server" depends="_private_compile-server">
+		<mkdir dir="${distDir}/server" />
+		
+		<!-- make server-centric command JAR -->
+		<jar destfile="${distDir}/server/${ant.project.name}-server-command.jar">
+			<fileset dir="${mainServerBuildDir}">
+				<include name="**/server/**/*.class" />
+			</fileset>
+		</jar>
+	</target>
+	
+	<!-- makes web service build product -->
+	<target name="_private_dist-ws" depends="_private_dist-server,_private_dist-common">
+		
+		<!-- make the web service build product (WAR) -->
+		<war warfile="${distDir}/server/${ant.project.name}.war"
+			webxml="${mainWebConfigSrcDir}/web.xml">
+			
+			<!-- needed JARs -->
+			<lib dir="${mainServerLibDir}">
+				<include name="**/*.jar" />
+			</lib>
+			
+			<!-- more needed JARs -->
+			<lib dir="${distDir}/common">
+				<include name="*.jar" />
+			</lib>		
+			
+			<!-- and even more needed JARs -->
+			<lib dir="${distDir}/server">
+				<include name="*.jar" />
+			</lib>					
+			
+			<!-- include castor config mapping files -->
+			<classes dir="${mainConfigSrcDir}/castor">
+				<include name="castor-commonTypes.xml" />
+			</classes>
+			<classes dir="${mainConfigSrcDir}/castor/commands/gentxnidcmd">
+				<include name="castor-GenTxnIDCmd.xml" />
+				<include name="castor-GenTxnIDServerCmd.xml" />
+			</classes>
+			
+			<!-- other configuration files  -->
+			<webinf dir="${mainWebConfigSrcDir}">
+				<include name="classes/log4j.properties" /> <!-- logging -->
+				<include name="spring-ws-servlet.xml" /> <!-- Spring -->
+			</webinf>
+			
+			<!-- WSDL and canonical definitions -->
+			<webinf dir="${mainWebConfigSrcDir}">
+				<include name="wsdl/**/*" />
+			</webinf>
+		</war>
+	</target>
+	
+	<!-- makes all build products -->
+	<target name="dist-all" depends="_private_dist-ws,_private_dist-client" />
+
+	<!-- Make the JavaDoc -->
+	<target name="javadoc" depends="_private_init">
+
+		<!-- generate the javadocs for our live (non-test) code -->
+		<javadoc destdir="${genJavadocDir}/mainJava" private="yes">						
+			<fileset dir="${mainJavaSrcDir}">
+				<include name="**/*.java" />
+			</fileset>
+		</javadoc>
+		
+		<!-- generate the javadocs for our test code -->
+		<javadoc destdir="${genJavadocDir}/testJava" 
+			private="yes">
+			
+			<!-- Looks like there is a bug in Java [http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6442982]
+			     that causes the Javadoc tool to crash when processing 
+			     source files with annotations.  Specifically in our case it's
+			     crashing when seeing the JUnit 4 annotations...the fix I found
+			     is that the jar(s) containing the annotation definitions need
+			     to be placed specifically on the class of the javadoc
+			     tool. -->
+			<classpath refid="unittest.class.path" />
+
+			<fileset dir="${testSrcDir}">
+				<include name="**/*.java" />
+			</fileset>
+		</javadoc>
+	</target>
+	
+	<!-- runs checkstyle to check the quality/compliance of the source code -->
+	<target name="checkstyle" depends="_private_init">
+		
+		<!-- taskdef needed in order to use checkstyle tasks -->
+		<taskdef classpathref="checkstyle.class.path"
+			resource="checkstyletask.properties" />
+		
+		<!-- run checkstyle against main java source -->
+		<antcall target="_private_checkstyle">
+			<param name="paramReportXml" value="checkstyle_report_mainJavaSrc.xml" />
+			<param name="paramReportHtml" value="checkstyle_report_mainJavaSrc.html" />
+			<param name="paramJavaSrcToMeasureDir" value="${mainJavaSrcDir}" />
+		</antcall>
+		
+		<!-- run checkstyle against test (unit/integration) java source -->
+		<antcall target="_private_checkstyle">
+			<param name="paramReportXml" value="checkstyle_report_testJavaSrc.xml" />
+			<param name="paramReportHtml" value="checkstyle_report_testJavaSrc.html" />
+			<param name="paramJavaSrcToMeasureDir" value="${testSrcDir}" />
+		</antcall>
+	</target>
+	
+	<target name="_private_checkstyle">
+		
+		<!-- taskdef needed in order to use checkstyle tasks -->
+		<taskdef classpathref="checkstyle.class.path"
+			resource="checkstyletask.properties" />
+				
+		<!-- run checkstyle against main java source -->
+		<checkstyle config="${checkstyleConfigSrcDir}/sun_checks.xml" 
+			failOnViolation="false">
+		    <formatter type="xml" 
+		    	tofile="${genCheckstyleReportsDir}/${paramReportXml}" />
+		    <fileset dir="${paramJavaSrcToMeasureDir}" includes="**/*.java" />
+		 </checkstyle>
+
+		 <xslt in="${genCheckstyleReportsDir}/${paramReportXml}" 
+		 	out="${genCheckstyleReportsDir}/${paramReportHtml}" 
+		 	style="${checkstyleConfigSrcDir}/styles/checkstyle-author.xsl" />
+	</target>
+	
+	<target name="integrationTest" depends="_private_dist-ws, _private_integrationTest-compile">
+		<antcall target="_private_executeTests">
+			<param name="paramCoberturaDataFile" value="${genCoberturaIntegrationTestDataFileDir}/${coberturaDataFileName}" />
+			<param name="paramTestClassesBuildDir" value="${integrationTestBuildDir}" />
+			<param name="paramTestSrcDir" value="${integrationTestSrcDir}" />
+			<param name="paramRawTestReportsDir" value="${genRawIntegrationTestReportsDir}" />
+			<param name="paramFormattedTestReportsDir" value="${genFormattedIntegrationTestReportsDir}" />
+			<param name="paramCoberturaInstrumentedTestClassesDir" value="${genCoberturaInstrumentedIntegrationTestClassesDir}" />
+			<param name="paramCoberturaDataFile" value="${genCoberturaIntegrationTestDataFileDir}/${coberturaDataFileName}" />
+			<param name="paramGenCoberturaTestReportsDir" value="${genCoberturaIntegrationTestReportsDir}" />
+			<param name="paramTestClassPath" value="integrationtest.class.path" />
+			<param name="paramCargoWarFileLocation" value="${basedir}/${distDir}/server/${ant.project.name}.war" />
+		</antcall>
+	</target>	
+	
+	<target name="unitTest" depends="_private_unitTest-compile">
+		<antcall target="_private_executeTests">
+			<param name="paramCoberturaDataFile" value="${genCoberturaUnitTestDataFileDir}/${coberturaDataFileName}" />
+			<param name="paramTestClassesBuildDir" value="${unitTestBuildDir}" />
+			<param name="paramTestSrcDir" value="${unitTestSrcDir}" />
+			<param name="paramRawTestReportsDir" value="${genRawUnitTestReportsDir}" />
+			<param name="paramFormattedTestReportsDir" value="${genFormattedUnitTestReportsDir}" />
+			<param name="paramCoberturaInstrumentedTestClassesDir" value="${genCoberturaInstrumentedUnitTestClassesDir}" />
+			<param name="paramCoberturaDataFile" value="${genCoberturaUnitTestDataFileDir}/${coberturaDataFileName}" />
+			<param name="paramGenCoberturaTestReportsDir" value="${genCoberturaUnitTestReportsDir}" />
+			<param name="paramTestClassPath" value="unittest.class.path" />
+		</antcall>
+	</target>
+
+	<!-- Parameterized target that will invoke a collection of JUnit tests,
+		 produce the JUnit test report, and will produce a Cobertura coverage
+		 report.  
+		 
+		 The '_private_' prefix in this target's name is to indicate
+		 that this target should not be invoked directly; it is instead invoked
+		 by other targets using the <antcall> task -->
+	<target name="_private_executeTests">
+
+		<!-- prepare Java source for coverage measurement -->
+		<antcall target="_private_codeCoverageSetup">
+			<param name="paramCoberturaInstrumentedTestClassesDir" value="${paramCoberturaInstrumentedTestClassesDir}" />
+			<param name="paramCoberturaDataFile" value="${paramCoberturaDataFile}" />
+		</antcall>
+
+		<!-- run all junit tests using instrumented classes -->
+		<junit printsummary="yes" haltonfailure="no" failureproperty="tests.failed">
+
+			<!-- Specify the name of the coverage data file to use.  The value 
+			specified below is the default -->
+			<sysproperty
+				key="net.sourceforge.cobertura.datafile"
+				value="${paramCoberturaDataFile}" />
+
+			<!-- define the classpath for junit to use -->
+			<classpath>
+
+				<!-- put instrumented classes onto the classpath first (the
+				"cobertura-instrument" task only moves classes over to the
+				"to-dir" location; interfaces are omitted.  Therefore we
+				need to add the various output-folders to the classpath so the
+				interface .class files are also added to the classpath; the
+				trick is to add the instrumented-classes to the classpath
+				first so they are loaded instead of the non-instrumented classes.  -->
+				<pathelement location="${paramCoberturaInstrumentedTestClassesDir}" />
+
+				<!-- put the various output-directories onto the classpath for the
+				sake of the java interfaces (to reiterate the above comment, the only
+				reason to have these 3 entries is so that the various interfaces
+				are added to the classpath; the instrumented-classes folder added right
+				above only puts the "classes" onto the classpath; the cobertura-instrument
+				task ONLY moves the classes .class files to its "to-dir" location; the
+				interface .class files are omitted. -->
+				<pathelement location="${mainClientBuildDir}" />
+				<pathelement location="${mainServerBuildDir}" />
+
+				<!-- put JUnit test cases onto the classpath -->
+				<pathelement location="${paramTestClassesBuildDir}" />
+				
+				<!-- put unit test or integration test specific configuration
+					 files onto the classpath -->
+				<pathelement location="${paramTestSrcDir}" />
+				
+				<!-- put test configuration files onto the classpath -->
+				<pathelement location="${testSrcDir}" />
+				
+				<!-- put web-related configuration files onto the classpath -->
+				<pathelement location="${mainContentDir}" />
+				<pathelement location="${mainWebConfigSrcDir}" />
+				
+				<!-- put Castor configuration files and folder containing XML
+					 test instance files on classpath -->
+				<pathelement location="${mainConfigSrcDir}/castor" />
+				<pathelement location="${mainConfigSrcDir}/castor/commands/gentxnidcmd" />
+				<pathelement location="${paramTestSrcDir}/castor_configuration/XMLInstances_for_testing" />
+				
+				<!-- put Canonicals onto classpath (unit tests only) -->
+				<pathelement location="${mainWebConfigSrcDir}/wsdl/canonicals" />
+				
+				<!-- put client Spring configuration file as well as XML
+					 instances folder that contains expected requests and 
+					 canned responses (unit tests only) -->
+				<pathelement location="${mainConfigSrcDir}/spring" />
+				<pathelement location="${paramTestSrcDir}/spring_configuration/SpringClientConfigTesting/XMLInstances_for_testing" />
+				<pathelement location="${paramTestSrcDir}/spring_configuration/SpringWsConfigTesting" />
+				<pathelement location="${paramTestSrcDir}/spring_configuration/SpringWsConfigTesting/XMLInstances_for_testing" />
+
+				<!-- put dependent jar files into the classpath -->
+				<path refid="${paramTestClassPath}" />
+				<path refid="cobertura.class.path" />
+			</classpath>
+			
+			<!-- set some JVM properties (integration tests only) -->
+			<jvmarg value="-Dintegrationtest.warfilelocation=${paramCargoWarFileLocation}" />
+			<jvmarg value="-Dintegrationtest.cargoconfigtargetbasefolder=${genCargoConfigTargetBaseDir}" />
+
+			<!-- use the xml formatter -->
+			<formatter type="xml" />
+
+			<!-- execute the tests -->
+			<batchtest fork="yes" todir="${paramRawTestReportsDir}">
+				<fileset dir="${paramTestClassesBuildDir}">
+					<include name="**/Test*.class" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<!-- create the formatted unit test results-report -->
+		<junitreport todir="${paramFormattedTestReportsDir}">
+			<fileset dir="${paramRawTestReportsDir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames"
+					todir="${paramFormattedTestReportsDir}" />
+		</junitreport>
+
+		<!-- create the formatted coverage report -->
+		<antcall target="_private_generateCovergeReport">
+			<param name="paramCoberturaDataFile" value="${paramCoberturaDataFile}" />
+			<param name="paramGenCoberturaTestReportsDir" value="${paramGenCoberturaTestReportsDir}" />
+		</antcall>
+
+		<!-- print alert if one or more tests failed -->
+		<fail if="tests.failed">
+			tests.failed=${tests.failed}
+			***********************************************************
+			***********************************************************
+			**** One or more tests failed! Check the output ... ****
+			***********************************************************
+			***********************************************************
+		</fail>
+	</target>
+
+	<!-- Parameterized target that will instrument a set of Java source files
+		 for coverage measurement.
+	
+		 The '_private_' postfix in this target's name is to indicate
+		 that this target should not be invoked directly; it is instead invoked
+		 by other targets using the <antcall> task -->
+	<target name="_private_codeCoverageSetup">
+
+		<!-- taskdef needed for Cobertura tasks -->
+		<taskdef classpathref="cobertura.class.path" resource="tasks.properties" />
+
+		<!-- instrument the classes excluding junit test-classes -->
+		<cobertura-instrument
+				todir="${paramCoberturaInstrumentedTestClassesDir}"
+				datafile="${paramCoberturaDataFile}">
+
+			<!-- instrument the 'client' class files -->
+			<fileset dir="${mainClientBuildDir}">
+				<include name="**/*.class" />
+			</fileset>
+			
+			<!-- instrument the 'server' class files -->
+			<fileset dir="${mainServerBuildDir}">
+				<include name="**/*.class" />
+			</fileset>
+		</cobertura-instrument>
+	</target>
+
+	<!-- Parameterized target to generate the test coverage report -->
+	<target name="_private_generateCovergeReport">
+
+		<!-- taskdef needed for Cobertura tasks -->
+		<taskdef classpathref="cobertura.class.path" resource="tasks.properties" />
+
+		<!-- create the coverage report -->
+		<cobertura-report format="html"
+			datafile="${paramCoberturaDataFile}"
+			destdir="${paramGenCoberturaTestReportsDir}">
+
+			<fileset dir="${mainJavaSrcDir}">
+				<include name="**/*.java" />
+			</fileset>
+		</cobertura-report>
+	</target>
+</project> 

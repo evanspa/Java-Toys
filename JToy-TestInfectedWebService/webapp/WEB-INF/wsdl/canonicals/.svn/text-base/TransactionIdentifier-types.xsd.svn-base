@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+	Defines commmands a series of commands that are relevant to the "transaction identifier" abstraction.  The principal
+	command defined is the 'TransactionIdGeneratorCommand' command.
+	
+	Author: Paul R Evans
+	Version: $Id$     
+-->
+<xs:schema 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"  
+	targetNamespace="http://name.paulevans/samples/TransactionIdentifier-types" 
+	xmlns:tns="http://name.paulevans/samples/TransactionIdentifier-types"
+	elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+	
+	<!-- Defines the response from the generator commands -->
+	<xs:element name="TransactionIdentifier">
+		<xs:complexType>
+			<xs:attribute name="identifierValue" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

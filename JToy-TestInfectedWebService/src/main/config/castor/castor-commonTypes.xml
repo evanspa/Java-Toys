@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE mapping PUBLIC 
+    "-//EXOLAB/Castor Object Mapping DTD Version 1.0//EN"
+    "http://castor.exolab.org/mapping.dtd">
+
+<ca:mapping xmlns:ca="http://castor.exolab.org/"
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:TxnIDTypes="http://name.paulevans/samples/TransactionIdentifier-types"
+	xsi:type="mapping">
+	
+	<!-- Define our product class -->
+	<ca:class name="name.paulevans.txnidgenerator.common.TxnIdentifier">
+	
+		<ca:map-to xml="TransactionIdentifier"
+			ns-uri="http://name.paulevans/samples/TransactionIdentifier-types"
+			ns-prefix="TxnIDTypes" />
+	
+		<ca:field name="identifierValue" set-method="%1" get-method="getIdentifierValue">
+			<ca:bind-xml node="attribute" name="identifierValue" />
+		</ca:field>	
+	</ca:class>
+</ca:mapping>

@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2/trunk/src/main/config/castor/commands/gentxnidcmd
+END
+castor-GenTxnIDServerCmd.xml
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/!svn/ver/2/trunk/src/main/config/castor/commands/gentxnidcmd/castor-GenTxnIDServerCmd.xml
+END
+castor-GenTxnIDClientCmd.xml
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/!svn/ver/2/trunk/src/main/config/castor/commands/gentxnidcmd/castor-GenTxnIDClientCmd.xml
+END
+castor-GenTxnIDCmd.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/2/trunk/src/main/config/castor/commands/gentxnidcmd/castor-GenTxnIDCmd.xml
+END

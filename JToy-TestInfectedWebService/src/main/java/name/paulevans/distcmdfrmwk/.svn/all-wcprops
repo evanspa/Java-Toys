@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2/trunk/src/main/java/name/paulevans/distcmdfrmwk
+END
+CommandProcessingException.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/!svn/ver/2/trunk/src/main/java/name/paulevans/distcmdfrmwk/CommandProcessingException.java
+END
+CommandExecutor.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/2/trunk/src/main/java/name/paulevans/distcmdfrmwk/CommandExecutor.java
+END
+Command.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/2/trunk/src/main/java/name/paulevans/distcmdfrmwk/Command.java
+END
