@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+	Contains type definitions for each command type in our order
+	system domain
+	
+	Author: Paul R Evans
+	Version: $Id$     
+-->
+<xs:schema 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"  
+	targetNamespace="http://name.paulevans/samples/OrderSystem-commands" 
+	xmlns:tns="http://name.paulevans/samples/OrderSystem-commands"
+	xmlns:OSTypes="http://name.paulevans/samples/OrderSystem-types"
+	elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+	
+	<!-- import our OSTypes schema -->
+	<xs:import 
+		namespace="http://name.paulevans/samples/OrderSystem-types" 
+		schemaLocation="OrderSystem-types.xsd" />
+	
+	<!-- Definition of the calculate order sub-total command
+		 (it takes as input a single <Order> element) -->
+    <xs:element name="CalculateOrderSubTotalCommand">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="OSTypes:Order"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+	<!-- Definition of the 'what a great price!' command
+		 (it takes as input a single <Order> element) -->
+    <xs:element name="WhatAGreatPriceCommand">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="OSTypes:Order"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

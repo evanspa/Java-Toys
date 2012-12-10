@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project name="JaxWsProviderApi_withCDI" resourceRoot="" soapui-version="3.6-beta2" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="OrderSystemBinding" type="wsdl" bindingName="{http://name.paulevans/samples/OrderSystem/services}OrderSystemBinding" soapVersion="1_1" anonymous="optional" definition="http://localhost:8088/JaxWsProviderApi/OrderService?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8088/JaxWsProviderApi/OrderService?wsdl"><con:part><con:url>http://localhost:8088/JaxWsProviderApi/OrderService?wsdl</con:url><con:content><![CDATA[<!--Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is JAX-WS RI 2.2.1-hudson-28-.-->
+<!--Defines a SOAP binding and service for the order system operations-->
+<definitions targetNamespace="http://name.paulevans/samples/OrderSystem/services" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:OSTypes="http://name.paulevans/samples/OrderSystem-types" xmlns:OSCommands="http://name.paulevans/samples/OrderSystem-commands" xmlns:definitions="http://name.paulevans/samples/OrderSystem-service-definitions" xmlns:tns="http://name.paulevans/samples/OrderSystem/services" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <!--Import the OrderSystem abstractions (types, messages, and port types)-->
+  <import namespace="http://name.paulevans/samples/OrderSystem-service-definitions" location="http://localhost:8088/JaxWsProviderApi/OrderService?wsdl=1"/>
+  <!--Define the bindings-->
+  <binding name="OrderSystemBinding" type="definitions:OrderSystemPortType">
+    <!--we're going to use the SOAP binding and describe all 
+			 contained operations to use a style: document-->
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <!--Defines our concrete calculate order sub-total operation-->
+    <operation name="CalculateOrderSubTotal">
+      <!--Specify this operation as being document-oriented (using
+				 the style attribute here is redundant because we already 
+				 defined the operation-style using the <soap:binding> element 
+				 up above-->
+      <soap:operation style="document" soapAction=""/>
+      <input>
+        <!--SOAP extensibility element to specify the soap body of 
+					 the input (request) message-->
+        <soap:body parts="body" use="literal"/>
+      </input>
+      <output>
+        <!--Define the soap body of the output (response) message-->
+        <soap:body parts="body" use="literal"/>
+      </output>
+    </operation>
+    <!--Defines our concrete 'what a great price!' operation-->
+    <operation name="WhatAGreatPrice">
+      <!--Specify this operation as being document-oriented-->
+      <soap:operation style="document" soapAction=""/>
+      <input>
+        <soap:body parts="body" use="literal"/>
+      </input>
+      <output>
+        <soap:body parts="body" use="literal"/>
+      </output>
+    </operation>
+  </binding>
+  <!--the concrete service definition-->
+  <service name="OrderService">
+    <!--Associate a binding with a network endpoint-->
+    <port name="OrderSystemPort" binding="tns:OrderSystemBinding">
+      <soap:address location="http://localhost:8088/JaxWsProviderApi/OrderService"/>
+    </port>
+  </service>
+</definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part><con:part><con:url>http://localhost:8088/JaxWsProviderApi/OrderService?wsdl=1</con:url><con:content><![CDATA[<!--Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is JAX-WS RI 2.2.1-hudson-28-.-->
+<!--Defines a set of web service operations for the Order System domain
+	
+	Author: Paul R Evans
+	Version: $Id$-->
+<definitions targetNamespace="http://name.paulevans/samples/OrderSystem-service-definitions" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:OSTypes="http://name.paulevans/samples/OrderSystem-types" xmlns:OSCommands="http://name.paulevans/samples/OrderSystem-commands" xmlns:tns="http://name.paulevans/samples/OrderSystem-service-definitions">
+  <!--Define the types-->
+  <types>
+    <!--import the types and operations canonicals-->
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <!--import our order system operations schema-->
+      <xsd:import namespace="http://name.paulevans/samples/OrderSystem-commands" schemaLocation="http://localhost:8088/JaxWsProviderApi/OrderService?xsd=1"/>
+    </xsd:schema>
+  </types>
+  <!--Define the message that represents the calculate order
+		 sub-total command request message-->
+  <message name="CalculateOrderSubTotalCmdMsg">
+    <part name="body" element="OSCommands:CalculateOrderSubTotalCommand"/>
+  </message>
+  <!--Define the message that represents the 'what a great price!'
+		 command request message-->
+  <message name="WhatAGreatPriceCmdMsg">
+    <part name="body" element="OSCommands:WhatAGreatPriceCommand"/>
+  </message>
+  <!--Define an order message-->
+  <message name="tns:OrderMsg">
+    <part name="body" element="OSTypes:Order"/>
+  </message>
+  <!--Define the set of operations to be exposed by this interface-->
+  <portType name="OrderSystemPortType">
+    <!--Define calculate order sub-total operation
+			 in which the input is a 'command' message and the
+			 output is an 'Order'-->
+    <operation name="CalculateOrderSubTotal">
+      <input message="tns:CalculateOrderSubTotalCmdMsg"/>
+      <output message="tns:OrderMsg"/>
+    </operation>
+    <!--Define 'what a great price!' operation
+			 in which the input is a 'command' message and the
+			 output is an 'Order'-->
+    <operation name="WhatAGreatPrice">
+      <input message="tns:WhatAGreatPriceCmdMsg"/>
+      <output message="tns:OrderMsg"/>
+    </operation>
+  </portType>
+</definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part><con:part><con:url>http://localhost:8088/JaxWsProviderApi/OrderService?xsd=1</con:url><con:content><![CDATA[<!--Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is JAX-WS RI 2.2.1-hudson-28-.-->
+<!--Contains type definitions for each command type in our order
+	system domain
+	
+	Author: Paul R Evans
+	Version: $Id$-->
+<xs:schema targetNamespace="http://name.paulevans/samples/OrderSystem-commands" elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://name.paulevans/samples/OrderSystem-commands" xmlns:OSTypes="http://name.paulevans/samples/OrderSystem-types">
+  <!--import our OSTypes schema-->
+  <xs:import namespace="http://name.paulevans/samples/OrderSystem-types" schemaLocation="http://localhost:8088/JaxWsProviderApi/OrderService?xsd=2"/>
+  <!--Definition of the calculate order sub-total command
+		 (it takes as input a single <Order> element)-->
+  <xs:element name="CalculateOrderSubTotalCommand">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="OSTypes:Order"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--Definition of the 'what a great price!' command
+		 (it takes as input a single <Order> element)-->
+  <xs:element name="WhatAGreatPriceCommand">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="OSTypes:Order"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>http://localhost:8088/JaxWsProviderApi/OrderService?xsd=2</con:url><con:content><![CDATA[<!--Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is JAX-WS RI 2.2.1-hudson-28-.-->
+<!--Contains type definitions for all of the objects in the
+    order system domain
+	
+	Author: Paul R Evans
+	Version: $Id$-->
+<xs:schema targetNamespace="http://name.paulevans/samples/OrderSystem-types" elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://name.paulevans/samples/OrderSystem-types">
+  <!--Describes an <Order> element as a collection
+		 of <LineItem> elements-->
+  <xs:element name="Order">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="tns:LineItem"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--Describes a <LineItem> as containing a <Product>
+		 and <Quantity> elements-->
+  <xs:element name="LineItem">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="tns:Product"/>
+        <xs:element name="Quantity" type="xs:integer"/>
+        <xs:element name="Cost" type="xs:decimal"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--Describes a <Product> as containig <Name> and
+		 <Price> elements-->
+  <xs:element name="Product">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Name" type="xs:string"/>
+        <xs:element name="Price" type="xs:decimal"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8088/JaxWsProviderApi/OrderService</con:endpoint></con:endpoints><con:operation isOneWay="false" action="" name="CalculateOrderSubTotal" bindingOperationName="CalculateOrderSubTotal" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Spoofed Product Price"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8088/JaxWsProviderApi/OrderService</con:endpoint><con:request><![CDATA[<soapenv:Envelope
+	xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ord="http://name.paulevans/samples/OrderSystem-commands"
+	xmlns:ord1="http://name.paulevans/samples/OrderSystem-types">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ord:CalculateOrderSubTotalCommand>
+         <ord1:Order>
+            <ord1:LineItem>
+               <ord1:Product>
+                  <ord1:Name>Titleist Pro V1</ord1:Name>
+
+		  <!--  this element will be ignored by the service; the 
+			actual retail price, as enforced on the server, 
+			will be used -->
+		  <ord1:RetailPrice>4.99</ord1:RetailPrice>
+               </ord1:Product>
+               <ord1:Quantity>3</ord1:Quantity>
+            </ord1:LineItem>
+            <ord1:LineItem>
+               <ord1:Product>
+                  <ord1:Name>Calaway Great Big Bertha</ord1:Name>
+               </ord1:Product>
+               <ord1:Quantity>1</ord1:Quantity>
+            </ord1:LineItem>
+         </ord1:Order>
+      </ord:CalculateOrderSubTotalCommand>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://name.paulevans/samples/OrderSystem/services/OrderSystemPortType/CalculateOrderSubTotalRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Invalid Product Name"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8088/JaxWsProviderApi/OrderService</con:endpoint><con:request><![CDATA[<soapenv:Envelope
+	xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ord="http://name.paulevans/samples/OrderSystem-commands"
+	xmlns:ord1="http://name.paulevans/samples/OrderSystem-types">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ord:CalculateOrderSubTotalCommand>
+         <ord1:Order>
+            <ord1:LineItem>
+               <ord1:Product>
+                  <ord1:Name>Logitech Wireless Mouse</ord1:Name>		  
+               </ord1:Product>
+               <ord1:Quantity>25</ord1:Quantity>
+            </ord1:LineItem>
+         </ord1:Order>
+      </ord:CalculateOrderSubTotalCommand>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://name.paulevans/samples/OrderSystem/services/OrderSystemPortType/CalculateOrderSubTotalRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Blank Product Name"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8088/JaxWsProviderApi/OrderService</con:endpoint><con:request><![CDATA[<soapenv:Envelope
+	xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ord="http://name.paulevans/samples/OrderSystem-commands"
+	xmlns:ord1="http://name.paulevans/samples/OrderSystem-types">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ord:CalculateOrderSubTotalCommand>
+         <ord1:Order>
+            <ord1:LineItem>
+               <ord1:Product>
+                  <ord1:Name>   </ord1:Name>		  
+               </ord1:Product>
+               <ord1:Quantity>2</ord1:Quantity>
+            </ord1:LineItem>
+         </ord1:Order>
+      </ord:CalculateOrderSubTotalCommand>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://name.paulevans/samples/OrderSystem/services/OrderSystemPortType/CalculateOrderSubTotalRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Valid Order"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8088/JaxWsProviderApi/OrderService</con:endpoint><con:request><![CDATA[<soapenv:Envelope
+	xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ord="http://name.paulevans/samples/OrderSystem-commands"
+	xmlns:ord1="http://name.paulevans/samples/OrderSystem-types">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ord:CalculateOrderSubTotalCommand>
+         <ord1:Order>
+            <ord1:LineItem>
+               <ord1:Product>
+                  <ord1:Name>Titleist Pro V1</ord1:Name>
+		</ord1:Product>
+               <ord1:Quantity>3</ord1:Quantity>
+            </ord1:LineItem>
+            <ord1:LineItem>
+               <ord1:Product>
+                  <ord1:Name>Calaway Great Big Bertha</ord1:Name>
+               </ord1:Product>
+               <ord1:Quantity>1</ord1:Quantity>
+            </ord1:LineItem>
+	    <ord1:LineItem>
+               <ord1:Product>
+                  <ord1:Name>Footjoy Dry Joys</ord1:Name>
+               </ord1:Product>
+               <ord1:Quantity>3</ord1:Quantity>
+            </ord1:LineItem>
+         </ord1:Order>
+      </ord:CalculateOrderSubTotalCommand>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://name.paulevans/samples/OrderSystem/services/OrderSystemPortType/CalculateOrderSubTotalRequest"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="" name="WhatAGreatPrice" bindingOperationName="WhatAGreatPrice" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Example Request"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8088/JaxWsProviderApi/OrderService</con:endpoint><con:request><![CDATA[<soapenv:Envelope
+	xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ord="http://name.paulevans/samples/OrderSystem-commands"
+	xmlns:ord1="http://name.paulevans/samples/OrderSystem-types">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ord:WhatAGreatPriceCommand>
+         <ord1:Order>
+            <ord1:LineItem>
+               <ord1:Product>
+                  <ord1:Name>Titleist Pro V1</ord1:Name>
+		</ord1:Product>
+               <ord1:Quantity>3</ord1:Quantity>
+            </ord1:LineItem>
+            <ord1:LineItem>
+               <ord1:Product>
+                  <ord1:Name>Calaway Great Big Bertha</ord1:Name>
+               </ord1:Product>
+               <ord1:Quantity>1</ord1:Quantity>
+            </ord1:LineItem>
+	    <ord1:LineItem>
+               <ord1:Product>
+                  <ord1:Name>Footjoy Dry Joys</ord1:Name>
+               </ord1:Product>
+               <ord1:Quantity>3</ord1:Quantity>
+            </ord1:LineItem>
+         </ord1:Order>
+      </ord:WhatAGreatPriceCommand>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://name.paulevans/samples/OrderSystem/services/OrderSystemPortType/WhatAGreatPriceRequest"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/></con:soapui-project>
