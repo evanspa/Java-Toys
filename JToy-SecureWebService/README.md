@@ -249,11 +249,11 @@ centric (castor-mapping_serverCommands.xml) Castor mapping configuration files
 + Update abstract (webapp/WEB-INF/wsdl/OrderSystem-abstract.wsdl) and concrete 
 (webapp/WEB-INF/wsdl/OrderSystem-concrete-soap.wsdl) WSDL definitions
 + In order to invoke the command from the client application, you'll need to:
-	+ + Update the client application's Spring configuration (located at
+	+ Update the client application's Spring configuration (located at
 		src/main/config/client/spring.xml) - at line 21 you'll see the 
 		'calculate order sub-total' client command bean defined; you'll basically
 		want to copy/paste this bean definition for your new command.
-	+ + Update the client application Java class
+	+ Update the client application Java class
 		(name.paulevans.samplesprojects.clientapplication.ClientApplication)
 		such that it invokes your new command (it should be self-explanatory
 		looking at the existing ClientApplication.java source how you go about
