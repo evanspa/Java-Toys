@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<!-- defines and sets up the mapping object between types and operation classes -->
+	<bean id="typeOpsMap"
+		class="name.paulevans.samplecodeprojects.policytesting.TypeOperationMapping">
+		<constructor-arg>
+			<map>
+				<entry key="RFILE" value-ref="readFileOperation" />
+				<entry key="WFILE" value-ref="writeFileOperation" />
+			</map>
+		</constructor-arg>
+	</bean>
+
+	<!-- defines the read-file operation class -->
+	<bean id="readFileOperation" 
+		class="name.paulevans.samplecodeprojects.policytesting.operation.ops.ReadFileOperation">
+		
+		<property name="fileName" value="datafiles/file-to-read.txt" />
+	</bean>
+
+	<!-- defines the write-file operation class -->
+	<bean id="writeFileOperation" 
+		class="name.paulevans.samplecodeprojects.policytesting.operation.ops.WriteFileOperation">
+		
+		<property name="fileName" value="datafiles/file-to-write.txt" />
+	</bean>
+		
+</beans>

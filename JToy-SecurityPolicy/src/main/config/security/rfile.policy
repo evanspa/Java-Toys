@@ -1,0 +1,23 @@
+// Grant the shared-jars all permissions...
+grant codeBase "file:lib/*" {
+	permission java.security.AllPermission;
+};
+
+// Grant permissions to our application JAR file... 
+grant codeBase "file:dist/JavaPolicySample.jar" {
+
+	// Add read permission to the Spring beans.xml configuration file...
+	permission java.io.FilePermission "config/beans.xml", "read";
+
+	// Spring needs this permission - I presume so that a schema-validation can be checked against the Spring beans XSD...
+	permission java.net.SocketPermission "www.springframework.org:80", "connect, resolve";
+
+	// Spring needs this permission...
+	permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+
+	// add read permission to the Log4j configuration properties file...
+	permission java.io.FilePermission "config/log4j.properties", "read";
+
+	// Add read permission so the application can read from this file!  Comment this out, run the app and see what happens...
+	permission java.io.FilePermission "datafiles/file-to-read.txt", "read";
+};
